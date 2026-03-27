@@ -67,8 +67,9 @@ Graph * ReadKG(FILE *fp)
             cids = (int *) malloc(C * sizeof(int));
             G->Pnum = C;
             G->psizes = (int *)malloc(G->Pnum * sizeof(int));
-            G->_category = (int *)malloc(N * sizeof(int));
             G->_categoryname = (char **)malloc(G->Pnum * sizeof(char *));
+            memset(G->psizes, 0, G->Pnum * sizeof(int));
+            memset(G->_categoryname, 0, G->Pnum * sizeof(char *));
         }
         else if(*pch == 'e')
         {
@@ -143,6 +144,7 @@ Graph * ReadKG(FILE *fp)
                 hsearch_r(citem, ENTER, &found_citem, htabc);
             }
             G->_category[v] = cid;
+            G->psizes[cid]++;
         }
         else{
             fprintf(stderr, "unknown command %c\n", *pch);
@@ -158,7 +160,19 @@ Graph * ReadKG(FILE *fp)
 	    G->_num_vertices = k;
 	    G->_num_active_vertices = k;
     }
-    hdestroy();
+    graph_build_same_category(G);
+
+    if (htab != NULL) {
+        hdestroy_r(htab);
+        free(htab);
+    }
+    if (htabc != NULL) {
+        hdestroy_r(htabc);
+        free(htabc);
+    }
+    if (ids != NULL) free(ids);
+    if (cids != NULL) free(cids);
+    if (line != NULL) free(line);
     return G;
 }
 

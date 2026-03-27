@@ -30,6 +30,7 @@ typedef struct graph_t {
   unsigned int _num_edges;     /* number of active edges */
   unsigned int _num_bytes;     /* number of bytes in bit-based vector */
   unsigned int **_neighbor;      /* bit-based adjacency matrix */
+  unsigned int **_same_category; /* bit-based same-category matrix */
   unsigned int *_active;       /* bit-based vector: 1-active */
   unsigned short *_degree;     /* number of edges each vertex have (<65536) */
   char **_label;               /* labels of vertices */
@@ -55,6 +56,9 @@ typedef struct graph_t {
 
 /* check to see if an edge exists or not */
 #define edge_exists(g, u, v)  (IS_SET(g->_neighbor[u], v))
+
+/* check to see if two vertices are in the same partite/category */
+#define same_category(g, u, v)  (IS_SET((g)->_same_category[(u)], (v)))
 
 /* check to see if a vertex is active or not */
 #define vertex_exists(g, u)  (IS_SET(g->_active, u))
@@ -115,6 +119,9 @@ Graph *graph_make(unsigned int num_vertices);
 /* Free the memory of a graph */
 void graph_free(Graph *G);
 
+/* Build the same-category bit matrix from vertex categories */
+void graph_build_same_category(Graph *G);
+
 /* Read in a graph from an unweighted edge-list format file */
 Graph *UW_EdgeList_in(FILE *fp);
 //Graph *graph_edgelist_in(FILE *fp, int FILTER);
@@ -152,4 +159,3 @@ int lower_degree_vertex(Graph *G, unsigned short k);
 
 
 #endif  /* __GRAPH_H */
-

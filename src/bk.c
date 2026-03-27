@@ -33,8 +33,7 @@ vid_t select_tomita_partite_pivot(Graph *G, vid_t *old, int ne, int ce)
 	candidate = old[i];
 	count = 0;
 	for (j = ne; j < ce; j++) {
-	  if (edge_exists(G, candidate, old[j]) ||
-		  G->_category[candidate] == G->_category[old[j]]) {
+	  if (edge_exists(G, candidate, old[j]) || same_category(G, candidate, old[j])) {
 		count++;
 	  }
 	}
@@ -435,7 +434,7 @@ void clique_find_v4(FILE *fp, u64 *nclique, Graph *G, \
 	if (u != pivot)
 	{
         //In this recursion, skip processing vertices that are either adjacent to the pivot or belong to the same partite set as the pivot vertex.
-		if(edge_exists(G, u, pivot) || (G->_category[u] == G->_category[pivot]))
+		if (edge_exists(G, u, pivot) || same_category(G, u, pivot))
 		{
 			old[ne] = old[pnei];
 			old[pnei] = u;
@@ -453,7 +452,7 @@ void clique_find_v4(FILE *fp, u64 *nclique, Graph *G, \
 	// X intersection (N(u) U P(u))
 	for (j = 0; j < ne; j++)
 	{
-	  if (edge_exists(G, u, old[j]) || (G->_category[old[j]] == G->_category[u])) 
+	  if (edge_exists(G, u, old[j]) || same_category(G, u, old[j])) 
 	  {
 		  jpid = G->_category[old[j]];
 		  new[new_ne++] = old[j];
@@ -463,7 +462,7 @@ void clique_find_v4(FILE *fp, u64 *nclique, Graph *G, \
 	// M intersection (N(u) U P(u))
 	for (j = ne+1; j < ce; j++)
 	{
-	  if (edge_exists(G, u, old[j]) || (G->_category[old[j]] == G->_category[u]))
+	  if (edge_exists(G, u, old[j]) || same_category(G, u, old[j]))
 	  {
 		  jpid = G->_category[old[j]];
 		  new_psizes[jpid]++;
@@ -719,7 +718,7 @@ void clique_find_v6(FILE *fp, u64 *nclique, Graph *G, \
 		if (u != pivot)
 		{
 			//In this recursion, skip processing vertices that are either adjacent to the pivot or belong to the same partite set as the pivot vertex.
-			if(edge_exists(G, u, pivot) || (G->_category[u] == G->_category[pivot]))
+			if (edge_exists(G, u, pivot) || same_category(G, u, pivot))
 			{
 				old[ne_copy] = old[pnei];
 				old[pnei] = u;
@@ -745,7 +744,7 @@ void clique_find_v6(FILE *fp, u64 *nclique, Graph *G, \
 	// X intersection (N(u) U P(u))
 	for (j = 0; j < ne; j++)
 	{
-	  if (edge_exists(G, u, old[j]) || (G->_category[old[j]] == G->_category[u])) 
+	  if (edge_exists(G, u, old[j]) || same_category(G, u, old[j])) 
 	  {
 		  jpid = G->_category[old[j]];
 		  new[new_ne++] = old[j];
@@ -755,7 +754,7 @@ void clique_find_v6(FILE *fp, u64 *nclique, Graph *G, \
 	// M intersection (N(u) U P(u))
 	for (j = ne+1; j < ce; j++)
 	{
-	  if (edge_exists(G, u, old[j]) || (G->_category[old[j]] == G->_category[u]))
+	  if (edge_exists(G, u, old[j]) || same_category(G, u, old[j]))
 	  {
 		  jpid = G->_category[old[j]];
 		  new_psizes[jpid]++;
@@ -797,7 +796,7 @@ void clique_find_v6(FILE *fp, u64 *nclique, Graph *G, \
 	/* Bound condition: Stop if any not is a neighbor of all candidates */ 
     for (i = 0; i < ne; i++) {
 	  for (j = ne; j < ce; j++) {
-		if (!(edge_exists(G, old[i], old[j]) || (G->_category[old[i]] == G->_category[old[j]]) )) break;
+		if (!(edge_exists(G, old[i], old[j]) || same_category(G, old[i], old[j]))) break;
 	  }
 	  if (j == ce) return;
 	}

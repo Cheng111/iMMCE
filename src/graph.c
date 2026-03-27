@@ -31,6 +31,8 @@ Graph *graph_make(unsigned int num_vertices)
   if (G->_label == NULL) { perror("graph_make : malloc label"); exit(-1); }
   G->_category = (int *) malloc(num_vertices * sizeof(int));
   if (G->_category == NULL) { perror("graph_make : malloc category"); exit(-1); }
+  G->_same_category = (unsigned int **) malloc(num_vertices * sizeof(unsigned int *));
+  if (G->_same_category == NULL) { perror("graph_make : malloc same-category"); exit(-1); }
   
   G->_neighbor = (unsigned int **) malloc(num_vertices * sizeof(unsigned int *));
   if (G->_neighbor == NULL) { perror("malloc"); exit(-1); }
@@ -38,6 +40,11 @@ Graph *graph_make(unsigned int num_vertices)
   if (G->_neighbor[0] == NULL) { perror("malloc"); exit(-1); }
   for (i = 0; i < num_vertices; i++) {
     G->_neighbor[i] = G->_neighbor[0] + i * num_ints;
+  }
+  G->_same_category[0] = (unsigned int *) malloc(G->_num_bytes * num_vertices);
+  if (G->_same_category[0] == NULL) { perror("malloc"); exit(-1); }
+  for (i = 0; i < num_vertices; i++) {
+    G->_same_category[i] = G->_same_category[0] + i * num_ints;
   }
   
   G->_active = (unsigned int *) malloc(G->_num_bytes);
@@ -47,8 +54,16 @@ Graph *graph_make(unsigned int num_vertices)
   if (G->_degree == NULL) { perror("malloc"); exit(-1); }
   
   memset(G->_neighbor[0], 0, G->_num_bytes * num_vertices);
+  memset(G->_same_category[0], 0, G->_num_bytes * num_vertices);
   memset(G->_active, 0xffff, G->_num_bytes);
   memset(G->_degree, 0, num_vertices * sizeof(unsigned short));
+  memset(G->_category, -1, num_vertices * sizeof(int));
+  memset(G->_label, 0, num_vertices * sizeof(char *));
+  G->_categoryname = NULL;
+  G->psizes = NULL;
+  G->lbs = NULL;
+  G->gps = NULL;
+  G->Pnum = 0;
   
   return G;
 }
@@ -64,11 +79,50 @@ void graph_free(Graph *G)
       if (G->_neighbor[0]) free(G->_neighbor[0]);
       free(G->_neighbor);
     }
+    if (G->_same_category) {
+      if (G->_same_category[0]) free(G->_same_category[0]);
+      free(G->_same_category);
+    }
     if (G->_active) free(G->_active);
     if (G->_degree) free(G->_degree);
-	for (i=0; i<G->_num_vertices; i++) free(G->_label[i]);
-  //for (i=0; i<G->_num_vertices; i++) free(G->_category[i]);
+	for (i=0; i<G->_num_vertices; i++) {
+      if (G->_label && G->_label[i]) free(G->_label[i]);
+    }
+    if (G->_label) free(G->_label);
+    if (G->_category) free(G->_category);
+    if (G->_categoryname) {
+      for (i = 0; i < G->Pnum; i++) {
+        if (G->_categoryname[i]) free(G->_categoryname[i]);
+      }
+      free(G->_categoryname);
+    }
+    if (G->psizes) free(G->psizes);
+    if (G->lbs) free(G->lbs);
+    if (G->gps) {
+      for (i = 0; i < G->Pnum; i++) {
+        if (G->gps[i].vertices) free(G->gps[i].vertices);
+      }
+      free(G->gps);
+    }
     free(G);
+  }
+}
+
+void graph_build_same_category(Graph *G)
+{
+  unsigned int i, j, n;
+
+  n = G->_num_vertices;
+  memset(G->_same_category[0], 0, G->_num_bytes * n);
+
+  for (i = 0; i < n; i++) {
+    if (G->_category[i] < 0) continue;
+    for (j = i; j < n; j++) {
+      if (G->_category[i] == G->_category[j]) {
+        SET_BIT(G->_same_category[i], j);
+        SET_BIT(G->_same_category[j], i);
+      }
+    }
   }
 }
 
@@ -316,6 +370,5 @@ int lower_degree_vertex(Graph *G, unsigned short k)
         return i;
   return -1;
 }
-
 
 

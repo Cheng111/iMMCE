@@ -182,7 +182,7 @@ void clique_find_v8(FILE *fp, u64 *nclique, Graph *G, \
 	upid = G->_category[u];
 	if (u != pivot)
 	{
-		if(edge_exists(G, u, pivot) || (G->_category[u] == G->_category[pivot]))
+		if (edge_exists(G, u, pivot) || same_category(G, u, pivot))
 		{
 			old[ne] = old[pnei];
 			old[pnei] = u;
@@ -198,7 +198,7 @@ void clique_find_v8(FILE *fp, u64 *nclique, Graph *G, \
     new_ne = 0;
 	for (j = 0; j < ne; j++)
 	{
-	  if (edge_exists(G, u, old[j]) || (G->_category[old[j]] == G->_category[u])) 
+	  if (edge_exists(G, u, old[j]) || same_category(G, u, old[j])) 
 	  {
 		  jpid = G->_category[old[j]];
 		  new[new_ne++] = old[j];
@@ -207,7 +207,7 @@ void clique_find_v8(FILE *fp, u64 *nclique, Graph *G, \
 	new_ce = new_ne;
 	for (j = ne+1; j < ce; j++)
 	{
-	  if (edge_exists(G, u, old[j]) || (G->_category[old[j]] == G->_category[u]))
+	  if (edge_exists(G, u, old[j]) || same_category(G, u, old[j]))
 	  {
 		  jpid = G->_category[old[j]];
 		  new_psizes[jpid]++;

@@ -186,12 +186,14 @@ void maximal_clique(char * confile, Graph *G)
     {
       G->lbs[i] = lb;}
 
-    GP * gp = malloc(G->Pnum*sizeof(GP));
+    GP * gp = calloc(G->Pnum, sizeof(GP));
     G->gps = gp;
     for(i = 0; i < G->Pnum; i++)
     {
       gp[i].color = i;
       gp[i].size = psizes[i];
+      gp[i].vertices = NULL;
+      gp[i].index = 0;
     }
     if(VERSION == 5)
     {
@@ -227,8 +229,10 @@ void maximal_clique(char * confile, Graph *G)
   clique_profile_out(fp2, nclique, G);
   fprintf(fp2, "Time (seconds)  : %.6f\n", utime);
 
-  if (outfn != NULL) free(outfn);
-  fclose(fp1);
+  if (outfn != NULL) {
+    free(outfn);
+    fclose(fp1);
+  }
   fclose(fp2);
 
 }
@@ -252,8 +256,10 @@ void maximum_clique(Graph *G)
   if (PRINT) clique_out(fp, G, maxclique, maxclique_size);
   fprintf(fp, "Maximum Clique Size : %d\n", maxclique_size);
 
-  if (outfn != NULL) free(outfn);
-  fclose(fp);
+  if (outfn != NULL) {
+    free(outfn);
+    fclose(fp);
+  }
   return;
 }
 
@@ -275,4 +281,3 @@ int main(int argc, char  **argv)
 
   exit(0);
 }
-
