@@ -18,6 +18,35 @@ int LB, UB, PART;
 int VERSION;
 int PRINT;
 
+vid_t select_tomita_partite_pivot(Graph *G, vid_t *old, int ne, int ce)
+{
+  vid_t pivot;
+  vid_t candidate;
+  int best_count;
+  int count;
+  int i, j;
+
+  pivot = old[ne];
+  best_count = -1;
+
+  for (i = ne; i < ce; i++) {
+	candidate = old[i];
+	count = 0;
+	for (j = ne; j < ce; j++) {
+	  if (edge_exists(G, candidate, old[j]) ||
+		  G->_category[candidate] == G->_category[old[j]]) {
+		count++;
+	  }
+	}
+	if (count > best_count) {
+	  best_count = count;
+	  pivot = candidate;
+	}
+  }
+
+  return pivot;
+}
+
 /* ------------------------------------------------------------------- *
  * Function: clique_out()    *                                     *
  * Output the clique or k-partite clique that meets the requirements.  *
@@ -397,7 +426,7 @@ void clique_find_v4(FILE *fp, u64 *nclique, Graph *G, \
 	  {
 		return;}
   }
-  pivot = old[ne];
+  pivot = select_tomita_partite_pivot(G, old, ne, ce);
   pnei = ce -1;
   while (ne < ce) 
   {
@@ -682,7 +711,7 @@ void clique_find_v6(FILE *fp, u64 *nclique, Graph *G, \
   else
   {
 	pnei = ce -1;
-	pivot = old[ne];
+	pivot = select_tomita_partite_pivot(G, old, ne, ce);
 	ne_copy = ne;
 	while(ne_copy <= pnei)
 	{

@@ -10,6 +10,32 @@
 extern int VERSION;
 extern int PRINT;
 
+static vid_t select_tomita_pivot(Graph *G, vid_t *old, int ne, int ce)
+{
+  vid_t pivot;
+  vid_t candidate;
+  int best_count;
+  int count;
+  int i, j;
+
+  pivot = old[ne];
+  best_count = -1;
+
+  for (i = ne; i < ce; i++) {
+	candidate = old[i];
+	count = 0;
+	for (j = ne; j < ce; j++) {
+	  if (edge_exists(G, candidate, old[j])) count++;
+	}
+	if (count > best_count) {
+	  best_count = count;
+	  pivot = candidate;
+	}
+  }
+
+  return pivot;
+}
+
 void clique_find_v7(FILE *fp, u64 *nclique, Graph *G, \
 		vid_t *clique, vid_t *old, int lc, int ne, int ce, int * csizes)
 {
@@ -44,7 +70,7 @@ void clique_find_v7_sub(FILE *fp, u64 *nclique, Graph *G, \
   int upid;//, jpid;
   int parclique = 0;
 
-  pivot = old[ne];
+  pivot = select_tomita_pivot(G, old, ne, ce);
   pnei = ce -1;
   while (ne < ce) 
   {
@@ -148,7 +174,7 @@ void clique_find_v8(FILE *fp, u64 *nclique, Graph *G, \
   int new_psizes[G->Pnum];
   int upid, jpid;
   int parclique = 0;
-  pivot = old[ne];
+  pivot = select_tomita_partite_pivot(G, old, ne, ce);
   pnei = ce -1;
   while (ne < ce) 
   {

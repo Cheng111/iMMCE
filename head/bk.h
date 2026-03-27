@@ -43,6 +43,8 @@ void clique_enumerate(FILE *, u64 *, Graph *, vid_t *, int);
  * ------------------------------------------------------------- */
 void maxclique_find(vid_t *, int *, Graph *, vid_t *, vid_t *, int, int, int);
 
+vid_t select_tomita_partite_pivot(Graph *G, vid_t *old, int ne, int ce);
+
 /* ------------------------------------------------------------- *
 maximal partite cliques enumration (BK without piivot)
 * ------------------------------------------------------------- */
@@ -64,4 +66,3 @@ void clique_find_v7_sub(FILE *fp, u64 *nclique, Graph *G, \
 void clique_find_v8(FILE *fp, u64 *nclique, Graph *G, \
 		vid_t *clique, vid_t *old, int lc, int ne, int ce, int * csizes, int * psizes);
 #endif
-
