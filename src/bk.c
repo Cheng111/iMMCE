@@ -29,7 +29,7 @@ vid_t select_tomita_partite_pivot(Graph *G, vid_t *old, int ne, int ce)
   pivot = old[ne];
   best_count = -1;
 
-  for (i = ne; i < ce; i++) {
+  for (i = 0; i < ce; i++) {
 	candidate = old[i];
 	count = 0;
 	for (j = ne; j < ce; j++) {
@@ -615,10 +615,10 @@ void clique_find_v5_sub(FILE *fp, u64 *nclique, Graph *G, \
 				break;
 			}
 		}
-		if(PRINT && (parclique == 0))
+		if(parclique == 0)
 		{
 			nclique[lc+1]++;
-			clique_out(fp, G, clique, lc+1);
+			if (PRINT) clique_out(fp, G, clique, lc+1);
 		}
 	  }
 	  else if (new_ne < new_ce) 

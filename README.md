@@ -17,11 +17,11 @@ Options:
 					1 - bron kerbosch version 1 (numerical order)
 					2 - bron kerbosch version 2 (improved version)
 					3 - modified bron kerbosch to find maximum clique
-					4 - maximal partite cliques enumration (BK with pivot).Terminate when the candidate set of a partite is empty and no vertex from that partite is included in the candidate k-partite clique.
-					5 - maximal partite cliques enumration (MMCE add intra-partite edges + BK)
-                    6 - maximal partite cliques enumration (MPCE) (a. Terminate when the candidate set from one partite is empty and no vertex from this partite is present in the current clique. b.pick up k different partite set vertices first)\n"
+					4 - maximal partite cliques enumration (BK-style k-partite search with pivot). Terminates when the candidate set of a partite is empty and no vertex from that partite is included in the current k-partite clique.
+					5 - maximal partite cliques enumration (MMCE add intra-partite edges + BK with pivot/fixp selection)
+					6 - maximal partite cliques enumration (MPCE). Terminates when the candidate set from one partite is empty and no vertex from this partite is present in the current clique; also forces the first k selected vertices to come from different partite sets.
 					7 - maximal partite cliques enumration (MMCE add intra-partite edges + BK with pivot)
-                    8 - maximal partite cliques enumration (MMCE variant + BK with pivot).
+					8 - maximal partite cliques enumration (MMCE variant + BK with pivot)
 ```
 ## Example Usage
 - Maximal k-partite clique enumration
@@ -38,3 +38,9 @@ Options:
 	- Each row represents an edge, using the format "e node1 node2"
 - Node lines
 	- Each row represents a node, using the format "n node partite"
+
+## Implementation Notes
+- `v5` does use pivoting. Its `fixp` selection is the classic Bron-Kerbosch/Tomita-style rule: choose a pivot from `X union P` that maximizes the number of neighbors in `P` (equivalently, minimizes the number of non-neighbors in `P`).
+- The shared Tomita pivot helpers were corrected to search pivot candidates in `X union P`, while still scoring them only by their compatibility with vertices in `P`.
+- For the k-partite routines, same-partite checks now use a bitset-backed `same_category(...)` lookup, similar to the bitset-backed `edge_exists(...)` test.
+- A cleanup bug that could abort after printing without `-o` was fixed by avoiding `fclose(stdout)`.
