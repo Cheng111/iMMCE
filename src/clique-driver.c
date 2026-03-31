@@ -3,8 +3,8 @@
  * Author: Cheng Chen: cchen67@vols.utk.edu; Yun Zhang: yzhang@cs.utk.edu
  * Last modified: 2022
  *
- * Changes: Add the upper bound of clique size to the BK 
- * 
+ * Changes: Add the upper bound of clique size to the BK
+ *
  * Copyright 2005-2006
  * Department of Computer Science, University of Tennessee, Knoxville
  *
@@ -15,6 +15,7 @@
 #include "bk.h"
 #include "ReadKG.h"
 
+#define MAX_PATH_LENGTH 4096 // On Linux
 
 /* Global variables */
 extern int LB,UB;  // lower bound and upper bound of clique size
@@ -24,7 +25,7 @@ extern int PART;
 extern int Spart;
 FILE *fp;
 char *outfn = NULL;
-char infn[100];
+char *infn;
 char * confile;
 int lb;
 
@@ -53,20 +54,20 @@ void print_options(void)
 void argument_parse(int argc, char **argv)
 {
   int i;
-  
+
   if (argc < 2) {
     fprintf(stderr, "Usage: %s Graph <options>\n", argv[0]);
     print_options();
 	exit(1);
   }
-  
+
   LB = 3; UB = -1;
   VERSION = 2;
   PRINT = 0;
   PART = 0;
 
-  
-  
+
+
   for (i = 2; i < argc; i++) {
 	if (!strcmp(argv[i], "-o")) {
 	  outfn = strdup(argv[++i]);
@@ -89,7 +90,7 @@ void argument_parse(int argc, char **argv)
 	}
   }
 
-  strcpy(infn, argv[1]);
+  infn = strdup(argv[1]);
   if ((fp = fopen(argv[1], "r")) == NULL) {
     fprintf(stderr, "Can't open input file %s\n", argv[1]);
     exit(-1);
@@ -138,7 +139,7 @@ void order_vertex(Graph *G, int psizes[], vid_t * vertices, GP * gp)
 void maximal_clique(char * confile, Graph *G)
 {
   FILE *fp1=stdout, *fp2;
-  char fname[512];
+  char fname[MAX_PATH_LENGTH];
   double utime;
   unsigned int n = num_vertices(G);
   vid_t clique[n];
@@ -150,6 +151,7 @@ void maximal_clique(char * confile, Graph *G)
     sprintf(fname, "%s.clique", outfn);
     fp1 = fopen(fname, "w");
   }
+
   if (strlen(infn) + strlen(".profile") >= sizeof(fname)) {
       // Truncate infn to fit the buffer
       strncpy(fname, infn, sizeof(fname) - strlen(".profile") - 1);
@@ -171,7 +173,7 @@ void maximal_clique(char * confile, Graph *G)
 	{clique_find_v2(fp1, nclique, G, clique, vertices, 0, 0, n);}
   else
   {
-  
+
     int psizes[G->Pnum];//each partite has how much nodes
     int csizes[G->Pnum];
     memset(psizes, 0, G->Pnum*sizeof(int));
@@ -248,7 +250,7 @@ void maximum_clique(Graph *G)
   vid_t i;
 
   if (outfn != NULL) fp = fopen(outfn, "w");
-  
+
   memset(clique, -1, n*sizeof(vid_t));
   for (i = 0; i < n; i++) vertices[i] = i;
   maxclique_find(maxclique, &maxclique_size, G, clique, vertices, 0, 0, n);
@@ -269,7 +271,7 @@ int main(int argc, char  **argv)
   Graph *G;
 
   argument_parse(argc, argv);
-  
+
   G = graph_edgelist_in(fp, PART);
   fclose(fp);
   if (UB == -1) UB = num_vertices(G);
